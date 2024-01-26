@@ -44,23 +44,36 @@ class Collection
     /**
      * Возвращает кол-во элементов в коллекции
      *
-     * @return int
+     * @return float|int|null
      */
-    public function count(): int
+    public function count(): float|int|null
     {
-        //TODO сделать проверку на вложенность через замыкание
-        return count($this->collection);
+        $count = null;
+
+        array_walk_recursive($this->collection, function ($item, $key) use (&$count) {
+            $count++;
+        });
+
+        return $count;
     }
 
     /**
      * Возвращает среднее значение по коллекции
      *
-     * @return integer
+     * @return float|int|null
      */
-    public function avg(): int
+    public function avg(): float|int|null
     {
-        //TODO сделать поддержку вложенности
-        return array_sum($this->collection) / count($this->collection);
+        $sum = null;
+        $count = null;
+        array_walk_recursive($this->collection, function ($item, $key) use (&$sum, &$count) {
+            if (is_numeric($item)) {
+                $count++;
+                $sum += $item;
+            }
+        });
+
+        return $sum / $count;
     }
 
     /**
@@ -71,7 +84,7 @@ class Collection
      */
     public function chunk(int $part): Collection|bool
     {
-        if($part > count($this->collection)) return false;
+        if ($part > count($this->collection)) return false;
 
         $newCollection = [];
 
@@ -97,8 +110,7 @@ class Collection
     {
         $newCollection = [];
 
-        foreach($this->collection as $item)
-        {
+        foreach ($this->collection as $item) {
             $newCollection = array_merge($newCollection, $item);
         }
 
@@ -114,16 +126,58 @@ class Collection
      */
     public function combine(array $values): Collection
     {
-        if(count($this->collection) !== count($values))
+        if (count($this->collection) !== count($values))
             throw new Exception("Ошибка! Разные размеры коллекций");
 
         $newCollection = [];
 
-        for ($i=0; $i < count($this->collection); $i++) {
+        for ($i = 0; $i < count($this->collection); $i++) {
             $newCollection[$this->collection[$i]] = $values[$i];
         }
 
         return new Collection($newCollection);
+    }
+
+    /**
+     * Возвращает коллекцию, обЪединенную с массивом
+     *
+     * @param array $values Массив, который нужно добавить в коллекцию
+     * @return Collection
+     */
+    public function concat(array $values): Collection
+    {
+        $newCollection = array_merge($this->collection, $values);
+        return new Collection($newCollection);
+    }
+
+    /**
+     * Функция проверяет есть ли аргумент в коллекции
+     *
+     * @return bool
+     */
+    public function contains(string|int|bool $arg): bool
+    {
+        $search = [];
+        array_walk_recursive($this->collection, function ($item, $key) use ($arg, &$search) {
+            $search[] = $arg == $item;
+        });
+
+        return in_array(true, $search);
+    }
+
+    /**
+     * Функция равносильна функции `contains()`, но использует строгое сравнение
+     *
+     * @return bool
+     */
+    public function containsStrict(string|int|bool $arg): bool
+    {
+        $search = [];
+        array_walk_recursive($this->collection, function ($item, $key) use ($arg, &$search) {
+            $search[] = $arg === $item;
+        });
+
+        return in_array(true, $search);
     }
 
     /**
