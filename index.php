@@ -2,7 +2,7 @@
 
 require "./helper.php";
 
-$coll = collect([1, 1, 2, 4]);
+// $coll = collect([1, 1, 2, 4]);
 
 // $coll->avg(); // 2
 
@@ -46,3 +46,12 @@ $coll = collect([1, 1, 2, 4]);
 
 // $collection->contains(2); // true
 // $collection->containsStrict(2); // false
+
+// $collection = collect([1, 2, 3, 4, 5]);
+
+// $collection->diff(collect([2, 4, 6, 8]))->print(); // [1,3,5]
+// $collection->diff([2, 4, 6, 8])->print(); // [1,3,5]
+
+// $collection = collect(['a', 'b', 'a', 'c', 'b']);
+ 
+// $collection->duplicates()->print(); // [2 => 'a', 4 => 'b']
