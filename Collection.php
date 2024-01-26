@@ -39,6 +39,16 @@ class Collection
         return $this;
     }
 
+    /**
+     * Возвращает коллекцию в виде массива
+     *
+     * @return array
+     */
+    public function get(): array
+    {
+        return $this->collection;
+    }
+
     /** Функционал коллекций */
 
     /**
@@ -178,6 +188,72 @@ class Collection
         });
 
         return in_array(true, $search);
+    }
+
+    public function diff(Collection|array $collection)
+    {
+        if ($collection instanceof Collection)
+            $diff = array_diff($this->collection, $collection->get());
+        else
+            $diff = array_diff($this->collection, $collection);
+
+        return new Collection($diff);
+    }
+
+    /**
+     * Преобразует многомерную коллекцию в одноуровневую,
+     * используя точечную нотацию
+     *
+     * @return void
+     */
+    public function dot()
+    {
+        //TODO
+    }
+
+    /**
+     * Находит и возвращает дублирующиеся значения
+     *
+     * @param string|null $key
+     * @return Collection
+     */
+    public function duplicates(): Collection
+    {
+        $values = [];
+        array_walk_recursive($this->collection, function ($item, $key) use (&$values) {
+            $values[$key] = $item;
+        });
+
+        $oldValues = [];
+        $out = [];
+
+        foreach ($values as $key => $value) {
+            if (empty($oldValues)) {
+                $oldValues[$key] = $value;
+                continue;
+            }
+
+            if (in_array($value, $oldValues)) {
+                $out[$key] = $value;
+                continue;
+            } else {
+                $oldValues[$key] = $value;
+            }
+        }
+
+
+        return new Collection($out);
+    }
+
+    /**
+     * Функция перебирает каждый элемент коллекции и отправляет в функцию замыкания
+     *
+     * @param callable $callback
+     * @return void
+     */
+    public function each(callable $callback)
+    {
+        //TODO
     }
 
     /**
