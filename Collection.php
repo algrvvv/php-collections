@@ -23,10 +23,7 @@ class Collection
 
     public function __get($name)
     {
-        /** Если идет вызов свойства print -> будет вызвана функция print */
-        if ($name === "print") {
-            $this->print();
-        }
+        return $this->collection[$name] ?? null;
     }
 
     /**
@@ -44,7 +41,7 @@ class Collection
      *
      * @return array
      */
-    public function get(): array
+    public function toArray(): array
     {
         return $this->collection;
     }
@@ -190,10 +187,17 @@ class Collection
         return in_array(true, $search);
     }
 
-    public function diff(Collection|array $collection)
+    /**
+     * Метод сравнивает коллекцию с другой коллекцией или массивом и возвращает новую коллекцию
+     * из исходных значений, которых нет в переданной коллекции или массиве
+     *
+     * @param Collection|array $collection
+     * @return Collection
+     */
+    public function diff(Collection|array $collection): Collection
     {
         if ($collection instanceof Collection)
-            $diff = array_diff($this->collection, $collection->get());
+            $diff = array_diff($this->collection, $collection->toArray());
         else
             $diff = array_diff($this->collection, $collection);
 
@@ -249,9 +253,159 @@ class Collection
      * Функция перебирает каждый элемент коллекции и отправляет в функцию замыкания
      *
      * @param callable $callback
-     * @return void
+     * @return Collection
      */
     public function each(callable $callback)
+    {
+        $out = [];
+        foreach ($this->collection as $key => $value) {
+            $result = call_user_func($callback, $value, $key);
+            if ($result === false) break;
+            $out[] = $result;
+        }
+
+        return new Collection($out);
+    }
+
+    /**
+     * Возвращает коллекцию, в которой не будет значений по полученным в функцию
+     * ключам
+     *
+     * @param array|string $except Ключи, который не будут возвращены
+     * @return Collection
+     */
+    public function except(array|string $except): Collection
+    {
+        $out = [];
+        foreach ($this->collection as $key => $value) {
+            if (in_array($key, (array)$except)) continue;
+
+            $out[$key] = $value;
+        }
+
+        return empty($out) ? $this->toArray() : new Collection($out);
+    }
+
+    /**
+     * Возвращает коллекцию элементов с указанными ключами
+     *
+     * @param array|string $only
+     * @return Collection
+     */
+    public function only(array|string $only): Collection
+    {
+        $out = [];
+        foreach ($this->collection as $key => $value) {
+            if (in_array($key, (array) $only)) $out[$key] = $value;
+        }
+
+        return new Collection($out);
+    }
+
+    /**
+     * Возвращает новую коллекцию отфильтрованную по условию в обратном вызове,
+     * который передается в функцию
+     *
+     * @param callable $callback Функция фильтрации
+     * @return Collection
+     */
+    public function filter(callable $callback): Collection
+    {
+        $out = [];
+        foreach ($this->collection as $key => $value) {
+            $res = call_user_func($callback, $value, $key);
+            if ($res) $out[$key] = $value;
+        }
+
+        return new Collection($out);
+    }
+
+    /**
+     * Возвращает просто первый элемент, если не задана функция для поиска.
+     * Если передана функция, то вернется первый элемент, который удовлетворяет
+     * условие в этой функции
+     *
+     * @param callable|null $callback
+     * @return mixed
+     */
+    public function first(callable $callback = null): mixed
+    {
+        if (is_null($callback))
+            return array_shift($this->collection);
+
+        $out = null;
+        foreach ($this->collection as $key => $value) {
+            $res = call_user_func($callback, $value, $key);
+            if ($res) {
+                $out = $value;
+                break;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Возвращает последний элемент коллекции
+     *
+     * @return mixed
+     */
+    public function last(): mixed
+    {
+        //TODO добавить коллбек
+        return array_pop($this->collection);
+    }
+
+    /**
+     * Возвращает новую коллекцию, в которой ключи и значения меняются местами
+     *
+     * @return Collection
+     */
+    public function flip(): Collection
+    {
+        $out = [];
+
+        foreach ($this->collection as $key => $value) {
+            $out[$value] = $key;
+        }
+
+        return new Collection($out);
+    }
+
+    /**
+     * Возвращает коллекцию, в которой будет удален элемент по заданному ключу
+     *
+     * @param mixed $key Ключ, по которому нужно удалить элемент
+     * @return Collection
+     */
+    public function forget(mixed $key): Collection
+    {
+        $out = $this->collection;
+        if(isset($out[$key])){
+            unset($out[$key]);
+        }
+
+        return new Collection($out);
+    }
+
+    /**
+     * Функция возвращает элемент по заданному ключу
+     *
+     * @param string $key Ключ по которому должен воспроизводиться поиск
+     * @param mixed $defaultValue Дефолтное значение, если элемент по ключу не найден
+     * @return mixed
+     */
+    public function get(string $key, mixed $defaultValue = null): mixed
+    {
+        return $this->collection[$key] ?? $defaultValue;
+    }
+
+    /**
+     * Группирует элементы коллекции по заданному ключу
+     *
+     * @return void
+     */
+    public function groupBy(mixed $key)
     {
         //TODO
     }
