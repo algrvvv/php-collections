@@ -113,10 +113,41 @@ require "./helper.php";
 // $collection->flip()->print(); // ['sasha' => 'name', 'laravel' => 'framework']
 
 // $collection = collect(['name' => 'taylor', 'framework' => 'laravel']);
- 
+
 // $collection->forget('name')->print(); // ['framework' => 'laravel']
 
-$collection = collect(['name' => 'sasha', 'framework' => 'laravel']);
+// $collection = collect(['name' => 'sasha', 'framework' => 'laravel']);
+
+// $value = $collection->get('name'); // 'sasha'
+// $value = $collection->get('nameFramework', "laravel"); // 'laravel'
+
+// $collection = collect([
+//     [
+//         'account_id' => 'account-x10',
+//         'product' => 'Chair'
+//     ],
+//     [
+//         'account_id' => 'account-x10',
+//         'product' => 'Bookcase'
+//     ],
+//     [
+//         'account_id' => 'account-x11',
+//         'product' => 'Desk'
+//     ],
+// ]);
+
+// $grouped = $collection->groupBy('account_id');
+
+// $collection = collect(['account_id' => 1, 'product' => 'Desk', 'amount' => 5]);
  
-$value = $collection->get('name'); // 'sasha'
-$value = $collection->get('nameFramework', "laravel"); // 'laravel'
+// $collection->has('product'); // true
+
+// $collection->has(['product', 'amount']); // true
+
+// $collection = collect(['account_id' => 1, 'product' => 'Desk', 'amount' => 5]);
+ 
+// $collection->hasAny(['product', 'price']); // true
+ 
+// $collection->hasAny(['name', 'price']); // false
+
+

@@ -381,7 +381,7 @@ class Collection
     public function forget(mixed $key): Collection
     {
         $out = $this->collection;
-        if(isset($out[$key])){
+        if (isset($out[$key])) {
             unset($out[$key]);
         }
 
@@ -405,9 +405,69 @@ class Collection
      *
      * @return void
      */
-    public function groupBy(mixed $key)
+    public function groupBy(mixed $sort)
     {
         //TODO
+        function array_recursive(mixed $data, $sort)
+        {
+            // static $out = [];
+            if (is_array($data)) {
+                foreach ($data as $key => $value) {
+                    $data[$key] = array_recursive($value, $sort);
+                }
+
+                return $data;
+            }
+
+            return $data;
+        }
+
+        $res = array_recursive($this->collection, $sort);
+        print_r($res);
+    }
+
+    /**
+     * Метод проверяет существует ли заданный ключ в коллекции или нет
+     * 
+     * @param mixed $key Ключ, который нужно найти
+     * @return bool
+     */
+    public function has(mixed $key): bool
+    {
+        $out = [];
+        foreach ($this->collection as $k => $val) {
+            if (is_array($key)) {
+                $out[] = (string)in_array($k, $key);
+            } else {
+                $out[] = (string)$k === $key;
+            }
+        }
+
+        if (is_array($key)) {
+            return array_count_values($out)[1] === count($key);
+        } else {
+            return in_array(true, $out);
+        }
+    }
+
+    /**
+     * Метод проверяет существует ли заданный ключ в коллекции или нет
+     *
+     * @param array $keys
+     * @return bool
+     */
+    public function hasAny(mixed $key): bool
+    {
+        $out = [];
+        foreach ($this->collection as $k => $val) {
+            if (is_array($key)) {
+                $out[] = in_array($k, $key);
+            } else {
+                $out[] = $k === $key;
+            }
+        }
+
+        return in_array(true, $out);
     }
 
     /**
