@@ -150,4 +150,12 @@ require "./helper.php";
  
 // $collection->hasAny(['name', 'price']); // false
 
+$collection = collect([
+    ['account_id' => 1, 'product' => 'Desk'],
+    ['account_id' => 2, 'product' => 'Chair'],
+]);
+ 
+$collection->implode('product', ', ');
+ 
+// Desk, Chair
 

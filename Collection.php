@@ -470,6 +470,13 @@ class Collection
         return in_array(true, $out);
     }
 
+
+    public function implode(string $key, string $seporator)
+    {
+        
+    }
+
+
     /**
      * Вывод коллекции
      *
